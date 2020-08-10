@@ -7,19 +7,15 @@
 
 # with 300k possible sites, do not remove the limiting head commands without care
 
-curl -s https://community.fandom.com/wiki/Sitemap | grep level= | sed -Ee 's`.*href="([^"]*).*`https://community.fandom.com\1`'  | head -3 > sitemap1
-
-rm -f sitemap2
-while read -r SITE; do
-  curl -s "$SITE" | grep level= | sed -Ee 's`.*href="([^"]*).*`https://community.fandom.com\1`' | head -3 >> sitemap2
-done < sitemap1
+curl -s https://community.fandom.com/wiki/Sitemap | grep level=2 | sed -Ee 's`.*href="([^"]*).*`https://community.fandom.com\1`'  | head -3 > sitemap2
 
 rm -f sitemap3
 while read -r SITE; do
-  curl -s "$SITE" | grep level= | sed -Ee 's`.*wiki/([^"]*).*`https://community.fandom.com/wiki/\1`' | head -3 >> sitemap3
+  curl -s "$SITE" | grep level=3 | sed -Ee 's`.*Sitemap([^"]*).*`https://community.fandom.com/wiki/Sitemap\1`' | head -3 >> sitemap3
 done < sitemap2
 
-rm -f sites.csv 
+rm -f sites.csv sites.list
 while read -r SITE; do
   curl -s "$SITE" | grep -Ee 'class="title' | sed -Ee 's`.*http([^"]*)">([^<]*)<.*`"http\1","\2"`' >> sites.csv
+  curl -s "$SITE" | grep -Ee 'class="title' | sed -Ee 's`.*http([^"]*)">([^<]*)<.*`http\1`' >> sites.list
 done < sitemap3
