@@ -1,0 +1,25 @@
+#!/bin/bash
+# wikia_sitelist.bsh
+#
+# Produce a list of Wikia (fandom.com) wikis by unravelling their nested display format at https://community.fandom.com/wiki/Sitemap
+#
+# From https://github.com/jrbray1/wikia
+
+# with 300k possible sites, do not remove the limiting head commands without care
+
+curl -s https://community.fandom.com/wiki/Sitemap | grep level= | sed -Ee 's`.*href="([^"]*).*`https://community.fandom.com\1`'  | head -3 > sitemap1
+
+rm -f sitemap2
+while read -r SITE; do
+  curl -s "$SITE" | grep level= | sed -Ee 's`.*href="([^"]*).*`https://community.fandom.com\1`' | head -3 >> sitemap2
+done < sitemap1
+
+rm -f sitemap3
+while read -r SITE; do
+  curl -s "$SITE" | grep level= | sed -Ee 's`.*wiki/([^"]*).*`https://community.fandom.com/wiki/\1`' | head -3 >> sitemap3
+done < sitemap2
+
+rm -f sites.csv 
+while read -r SITE; do
+  curl -s "$SITE" | grep -Ee 'class="title' 1 | sed -Ee 's`.*http([^"]*)">([^<]*)<.*`"http\1","\2"`' >> sites.csv
+done < sitemap3
