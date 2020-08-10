@@ -21,5 +21,5 @@ done < sitemap2
 
 rm -f sites.csv 
 while read -r SITE; do
-  curl -s "$SITE" | grep -Ee 'class="title' 1 | sed -Ee 's`.*http([^"]*)">([^<]*)<.*`"http\1","\2"`' >> sites.csv
+  curl -s "$SITE" | grep -Ee 'class="title' | sed -Ee 's`.*http([^"]*)">([^<]*)<.*`"http\1","\2"`' >> sites.csv
 done < sitemap3
